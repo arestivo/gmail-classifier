@@ -124,7 +124,7 @@ def build_system_prompt() -> str:
     Return JSON only:
 
     {{
-    "topics": ["EXACTLY_ONE_TOPIC_FROM_THE_LIST"],
+    "topic": "EXACTLY_ONE_TOPIC_FROM_THE_LIST",
     "status": "STATUS",
     "kind": "KIND",
     "confidence": 0.0

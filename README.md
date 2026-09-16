@@ -275,14 +275,6 @@ ollama pull gemma3:12b
 
 ## Development
 
-### Running tests
-
-```bash
-poetry run pytest
-```
-
-### Code style
-
 The project uses Python 3.12+ features. Format code with your preferred formatter (e.g., Black, Ruff).
 
 ## License

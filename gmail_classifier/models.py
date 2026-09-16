@@ -69,10 +69,7 @@ class Email(BaseModel):
 
 
 class Classification(BaseModel):
-    topics: list[Topic] = Field(
-        min_length=1,
-        max_length=1,
-    )
+    topic: Topic
     status: Status
     kind: Kind
     confidence: float = Field(

@@ -112,7 +112,7 @@ def evaluate(
                     "id": email.id,
                     "from": email.sender,
                     "subject": email.subject,
-                    "topic": result.topics[0].value,
+                    "topic": result.topic.value,
                     "status": result.status.value,
                     "kind": result.kind.value,
                     "confidence": result.confidence,
@@ -175,13 +175,6 @@ def create_labels():
       "AI/Classified",
     )
 
-from .gmail import (
-    apply_label,
-    get_messages,
-    get_or_create_label,
-    get_service,
-)
-
 
 @app.command()
 def label_recent(
@@ -211,7 +204,7 @@ def label_recent(
         try:
             result = classify(email)
 
-            topic = result.topics[0].value
+            topic = result.topic.value
 
             typer.echo(
                 f"  → {topic}"
