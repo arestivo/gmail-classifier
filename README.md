@@ -1,6 +1,6 @@
 # Gmail Classifier
 
-An intelligent email classifier that uses AI to automatically categorize Gmail messages. This tool connects to your Gmail account and uses a local Ollama instance to classify emails into topics (like research, teaching, administrative work), assign status indicators (action required, waiting, reference, none), and determine message kind (human, institutional, newsletter, etc.).
+An intelligent email classifier that uses AI to automatically categorize Gmail messages. This tool connects to your Gmail account and uses a local Ollama instance to classify emails into topics you define, assign status indicators (action required, waiting, reference, none), and determine message kind (human, institutional, newsletter, etc.).
 
 ## Features
 
@@ -135,7 +135,7 @@ The CSV includes:
 Display all emails from the evaluation CSV that match a specific topic.
 
 ```bash
-poetry run gmail-classifier show "FEUP/Teaching/LTW" --input evaluation.csv
+poetry run gmail-classifier show "Work" --input evaluation.csv
 ```
 
 **Options:**
@@ -148,11 +148,7 @@ Create Gmail labels for all classification topics in your account.
 poetry run gmail-classifier create-labels
 ```
 
-This creates labels like:
-- `FEUP/Teaching/LTW`
-- `FEUP/Dissertations`
-- `Research/Papers`
-- etc.
+This creates one Gmail label per topic defined in your `topics.yaml`.
 
 #### `label-recent`
 Classify recent emails and apply topic labels to them in Gmail.
@@ -172,17 +168,14 @@ When `--apply` is used, emails are labeled with both the topic label and an `AI/
 
 ### Topics
 
-Topics are defined in `topics.yaml` (see [Topic taxonomy](#topic-taxonomy)).
-The example configuration ships with categories such as:
+Topics are entirely up to you — they are defined in `topics.yaml`
+(see [Topic taxonomy](#topic-taxonomy)). The bundled `topics.yaml.example`
+ships with a small starter set:
 
-- **FEUP Management**: M.EIC, L.EIC, MECD, DEI
-- **FEUP Teaching**: LTW, LDTS, FCED, Other
-- **FEUP Administration**: Dissertations, Admin, General
-- **Research**: Papers, PhD, Conferences, Citations, Other
-- **Projects**: JurisVis, Other
-- **Newsletters**: ACM, U.Porto, Other
-- **Services**: Security, Accounts
-- **Low Priority**: Academic Solicitation, Commercial, Spam
+- **Work**: Work-related correspondence
+- **Personal**: Messages from friends and family
+- **Finance**: Invoices, receipts, banking and payment notifications
+- **Newsletters**: Recurring or mass informational mail
 - **Other**: Fallback category
 
 ### Status
@@ -212,7 +205,7 @@ A typical workflow might be:
 
 2. **Review** the CSV to check classification quality:
    ```bash
-   poetry run gmail-classifier show "FEUP/Teaching/LTW" --input results.csv
+   poetry run gmail-classifier show "Work" --input results.csv
    ```
 
 3. **Create** Gmail labels once you're satisfied with the results:
