@@ -1,26 +1,24 @@
-import json
-from pathlib import Path
-
 import httpx
-import yaml
 
-from .models import (
-    Classification,
-    Email,
-    Kind,
-    Status,
-    Topic,
-)
+from .config import Config
+from .models import Email, Kind, Status
 
 OLLAMA_URL = "http://localhost:11434"
 MODEL = "gemma3:12b"
 
-def build_system_prompt() -> str:
+
+def build_system_prompt(config: Config) -> str:
     """Build the classifier system prompt."""
 
     topics = "\n".join(
-        f"- {topic.value}"
-        for topic in Topic
+        f"- {spec.name}"
+        for spec in config.topics
+    )
+
+    topic_rules = "\n".join(
+        f"- {spec.name}: {spec.rule}"
+        for spec in config.topics
+        if spec.rule
     )
 
     statuses = "\n".join(
@@ -53,33 +51,8 @@ def build_system_prompt() -> str:
 
     TOPIC RULES:
 
-    - Choose the single most specific topic that describes why this
-    email matters to the recipient.
-    - Do NOT add a general parent or related category.
-    - FEUP/General means general FEUP institutional communication.
-    Do not use it merely because the recipient works at FEUP.
-    - FEUP/Management/M.EIC is for management and scientific
-    committee work concerning M.EIC. An email about supervising an
-    M.EIC dissertation belongs to FEUP/Dissertations, not M.EIC.
-    - FEUP/Management/L.EIC is for management work concerning L.EIC.
-    - FEUP/Dissertations is for dissertation supervision, students,
-    meetings, reviews, defenses and related dissertation work.
-    - FEUP/Teaching/* is for teaching a specific course.
-    - Newsletters/* is for newsletters and mass informational mail.
-    - Services/Security is for security alerts and warnings.
-    - Services/Accounts is for account configuration and service
-    account information that is not primarily a security warning.
-    - Research/Papers is for papers, reviews, submissions and
-    publication-related correspondence.
-    - Research/Conferences is for conference organization,
-    attendance, registration and calls relating to legitimate
-    conferences.
-    - Research/Other is the fallback for research correspondence
-    that does not fit another Research category.
-    - Low Priority/Academic Solicitation is for unsolicited journal,
-    conference, editorial-board and similar academic solicitations.
-    - Low Priority/Commercial is for marketing and sales messages.
-    - Other is the final fallback.
+    {config.guidance}
+    {topic_rules}
 
     STATUS RULES:
 
@@ -135,7 +108,7 @@ def build_system_prompt() -> str:
     """.strip()
 
 
-def classify(email: Email) -> Classification:
+def classify(email: Email, config: Config):
     """Classify a single email using Ollama."""
 
     content = f"""
@@ -151,14 +124,14 @@ SUBJECT: {email.subject}
         json={
             "model": MODEL,
             "stream": False,
-            "format": Classification.model_json_schema(),
+            "format": config.classification.model_json_schema(),
             "options": {
                 "temperature": 0,
             },
             "messages": [
                 {
                     "role": "system",
-                    "content": build_system_prompt(),
+                    "content": build_system_prompt(config),
                 },
                 {
                     "role": "user",
@@ -173,4 +146,4 @@ SUBJECT: {email.subject}
 
     raw_content = response.json()["message"]["content"]
 
-    return Classification.model_validate_json(raw_content)
+    return config.classification.model_validate_json(raw_content)

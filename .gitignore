@@ -1,5 +1,6 @@
 credentials.json
 token.json
+topics.yaml
 .env
 __pycache__/
 *.pyc

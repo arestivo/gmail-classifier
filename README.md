@@ -43,7 +43,19 @@ poetry install
 5. Download the credentials JSON file
 6. Save it as `credentials.json` in the project root directory
 
-### 4. Set up Ollama
+### 4. Set up the topic taxonomy
+
+The classifier reads its list of topics from `topics.yaml` in the project root.
+This file is git-ignored so your personal categories stay local. Copy the
+example and adapt it:
+
+```bash
+cp topics.yaml.example topics.yaml
+```
+
+See [Topic taxonomy](#topic-taxonomy) for the file format.
+
+### 5. Set up Ollama
 
 1. Install [Ollama](https://ollama.ai/)
 2. Pull the Gemma 3 12B model:
@@ -160,7 +172,8 @@ When `--apply` is used, emails are labeled with both the topic label and an `AI/
 
 ### Topics
 
-The classifier can assign emails to these topic categories:
+Topics are defined in `topics.yaml` (see [Topic taxonomy](#topic-taxonomy)).
+The example configuration ships with categories such as:
 
 - **FEUP Management**: M.EIC, L.EIC, MECD, DEI
 - **FEUP Teaching**: LTW, LDTS, FCED, Other
@@ -218,6 +231,32 @@ A typical workflow might be:
    ```
 
 ## Configuration
+
+### Topic taxonomy
+
+Topics live in `topics.yaml` in the project root (copied from
+`topics.yaml.example`). Each topic has a `name` — the exact value used as the
+Gmail label and in the model output — and an optional `rule` describing when it
+applies. An optional top-level `guidance` block holds cross-cutting instructions
+shown before the per-topic rules.
+
+```yaml
+guidance: |-
+  - Choose the single most specific topic that fits the email.
+  - Do NOT add a general parent or related category.
+
+topics:
+  - name: Work
+    rule: Work-related correspondence from colleagues or clients.
+  - name: Newsletters
+    rule: Recurring or mass informational mail.
+  - name: Other
+    rule: The final fallback.
+```
+
+The topic names are injected into the classifier prompt **and** used to
+constrain the model's structured output, so keep them stable and specific. After
+editing the taxonomy, run `create-labels` to create any new Gmail labels.
 
 ### Ollama Model
 

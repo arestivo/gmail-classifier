@@ -1,0 +1,24 @@
+# Topic taxonomy for the classifier.
+#
+# Copy this file to `topics.yaml` and adapt it to your own categories.
+# `topics.yaml` is git-ignored so your personal taxonomy stays local.
+#
+# Each topic needs a `name` (the exact value used as the Gmail label and in
+# the model output) and an optional `rule` describing when it applies.
+
+# Cross-cutting guidance shown before the per-topic rules (optional).
+guidance: |-
+  - Choose the single most specific topic that fits the email.
+  - Do NOT add a general parent or related category.
+
+topics:
+  - name: Work
+    rule: Work-related correspondence from colleagues or clients.
+  - name: Personal
+    rule: Messages from friends and family.
+  - name: Finance
+    rule: Invoices, receipts, banking and payment notifications.
+  - name: Newsletters
+    rule: Recurring or mass informational mail.
+  - name: Other
+    rule: The final fallback.

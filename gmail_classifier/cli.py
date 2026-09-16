@@ -6,10 +6,9 @@ from .gmail import (
     get_messages,
     get_or_create_label,
     get_service,
-    get_labels,
 )
 from .ollama import classify
-from .models import Topic
+from .config import load_config
 
 
 app = typer.Typer()
@@ -33,7 +32,7 @@ def test_ollama():
         ),
     )
 
-    result = classify(email)
+    result = classify(email, load_config())
 
     typer.echo(result.model_dump_json(indent=2))
 
@@ -56,6 +55,8 @@ def classify_recent(
 ):
     """Classify Gmail messages without modifying Gmail."""
 
+    config = load_config()
+
     for email in get_messages(
         limit=limit,
         query=query,
@@ -65,7 +66,7 @@ def classify_recent(
         typer.echo(f"Subject: {email.subject}")
 
         try:
-            result = classify(email)
+            result = classify(email, config)
             typer.echo(result.model_dump_json(indent=2))
 
         except Exception as exc:
@@ -81,6 +82,8 @@ def evaluate(
     output: str = "evaluation.csv",
 ):
     """Classify historical messages and save results for review."""
+
+    config = load_config()
 
     with open(output, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(
@@ -106,7 +109,7 @@ def evaluate(
             )
 
             try:
-                result = classify(email)
+                result = classify(email, config)
 
                 writer.writerow({
                     "id": email.id,
@@ -160,7 +163,7 @@ def create_labels():
 
     service = get_service()
 
-    for topic in Topic:
+    for topic in load_config().topic_enum:
         label_id = get_or_create_label(
             service,
             topic.value,
@@ -184,14 +187,14 @@ def label_recent(
 ):
     """Classify recent messages and optionally apply topic labels."""
 
+    config = load_config()
+
     service = get_service()
 
     classified_label_id = get_or_create_label(
         service,
         "AI/Classified",
     )
-
-    labels = get_labels(service)
 
     for i, email in enumerate(
         get_messages(limit=limit, query=query),
@@ -202,7 +205,7 @@ def label_recent(
         )
 
         try:
-            result = classify(email)
+            result = classify(email, config)
 
             topic = result.topic.value
 
